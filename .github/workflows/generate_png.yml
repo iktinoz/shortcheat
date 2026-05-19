@@ -1,0 +1,43 @@
+name: Generate Cheat Sheet PNG
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "examples/**"
+      - "scripts/generate_png.py"
+      - "pyproject.toml"
+  workflow_dispatch:
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install ".[dev]"
+
+      - name: Copy examples to config dir (CI)
+        run: |
+          mkdir -p ~/.config/shortcheat
+          cp examples/*.yaml ~/.config/shortcheat/
+
+      - name: Generate cheat_sheet.png
+        run: python scripts/generate_png.py
+
+      - name: Commit updated PNG
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: regenerate cheat_sheet.png [skip ci]"
+          file_pattern: "cheat_sheet.png"
+          commit_user_name: "github-actions[bot]"
+          commit_user_email: "github-actions[bot]@users.noreply.github.com"

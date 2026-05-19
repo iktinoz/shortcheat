@@ -1,0 +1,2 @@
+[console_scripts]
+shortcheat = scripts.generate_png:main

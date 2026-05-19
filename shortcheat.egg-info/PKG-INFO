@@ -1,0 +1,11 @@
+Metadata-Version: 2.4
+Name: shortcheat
+Version: 0.1.0
+Summary: Generate a PNG keyboard shortcut cheat sheet from YAML files
+Requires-Python: >=3.11
+Requires-Dist: Pillow>=10.0
+Requires-Dist: PyYAML>=6.0
+Provides-Extra: dev
+Requires-Dist: bandit>=1.7; extra == "dev"
+Requires-Dist: pre-commit>=3.7; extra == "dev"
+Requires-Dist: ruff>=0.4; extra == "dev"
