@@ -14,8 +14,7 @@ pub fn filter_apps(apps: &[App], query: &str) -> Vec<App> {
                 .shortcuts
                 .iter()
                 .filter(|s| {
-                    s.description.to_lowercase().contains(&q)
-                        || s.keys.to_lowercase().contains(&q)
+                    s.description.to_lowercase().contains(&q) || s.keys.to_lowercase().contains(&q)
                 })
                 .cloned()
                 .collect();

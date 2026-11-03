@@ -1,8 +1,8 @@
 [package]
-name = "shortcheat-tui"
+name = "shortcheat"
 version = "0.1.0"
 edition = "2021"
-description = "Interactive terminal cheat-sheet viewer (Everforest) for shortcheat YAML"
+description = "Keyboard shortcut cheat sheet from YAML: terminal viewer and PNG export (Everforest)"
 
 [dependencies]
 ratatui = "0.29"
@@ -11,6 +11,9 @@ serde = { version = "1", features = ["derive"] }
 serde_yaml = "0.9"
 dirs = "5"
 anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+tiny-skia = "0.11"
+ab_glyph = "0.2"
 
 [profile.release]
 lto = "thin"

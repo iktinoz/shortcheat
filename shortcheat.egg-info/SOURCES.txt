@@ -1,8 +1,0 @@
-README.md
-pyproject.toml
-shortcheat.egg-info/PKG-INFO
-shortcheat.egg-info/SOURCES.txt
-shortcheat.egg-info/dependency_links.txt
-shortcheat.egg-info/entry_points.txt
-shortcheat.egg-info/requires.txt
-shortcheat.egg-info/top_level.txt

@@ -5,8 +5,9 @@ on:
     branches: [main]
     paths:
       - "examples/**"
-      - "scripts/generate_png.py"
-      - "pyproject.toml"
+      - "src/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
   workflow_dispatch:
 
 jobs:
@@ -18,13 +19,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
+      - uses: dtolnay/rust-toolchain@stable
 
-      - name: Install dependencies
-        run: pip install ".[dev]"
+      - name: Install fonts
+        run: sudo apt-get update && sudo apt-get install -y fonts-dejavu-core
+
+      - name: Run tests
+        run: cargo test
 
       - name: Copy examples to config dir (CI)
         run: |
@@ -32,7 +33,7 @@ jobs:
           cp examples/*.yaml ~/.config/shortcheat/
 
       - name: Generate cheat_sheet.png
-        run: python scripts/generate_png.py
+        run: cargo run --release -- png
 
       - name: Commit updated PNG
         uses: stefanzweifel/git-auto-commit-action@v5

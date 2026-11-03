@@ -5,10 +5,11 @@ use ratatui::widgets::{Block, BorderType, Borders, Paragraph};
 use ratatui::Frame;
 
 use crate::filter::filter_apps;
+use crate::keys::{icon_for, parse_chips};
 use crate::model::{App, Shortcut};
 use crate::theme::{
-    icon_for, parse_chips, ON_SURFACE, ON_SURFACE_VARIANT, OUTLINE_VARIANT, PRIMARY, SECONDARY,
-    SURFACE_CONTAINER_HIGHEST, TERTIARY,
+    ON_SURFACE, ON_SURFACE_VARIANT, OUTLINE_VARIANT, PRIMARY, SECONDARY, SURFACE_CONTAINER_HIGHEST,
+    TERTIARY,
 };
 
 pub const COLUMNS: usize = 4;

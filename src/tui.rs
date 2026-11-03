@@ -1,9 +1,3 @@
-mod config;
-mod filter;
-mod model;
-mod theme;
-mod ui;
-
 use std::time::Duration;
 
 use anyhow::Result;
@@ -11,15 +5,10 @@ use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind, KeyModifier
 use ratatui::backend::Backend;
 use ratatui::Terminal;
 
-fn main() -> Result<()> {
-    let apps = match config::load() {
-        Ok(a) => a,
-        Err(e) => {
-            eprintln!("shortcheat-tui: {e}");
-            std::process::exit(1);
-        }
-    };
+use crate::{model, ui};
 
+/// Run the interactive viewer until the user quits.
+pub fn start(apps: Vec<model::App>) -> Result<()> {
     let mut terminal = ratatui::init();
     let result = run(&mut terminal, apps);
     ratatui::restore();

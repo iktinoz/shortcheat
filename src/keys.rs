@@ -1,13 +1,3 @@
-use ratatui::style::Color;
-
-pub const SURFACE_CONTAINER_HIGHEST: Color = Color::Rgb(0x2e, 0x36, 0x3c);
-pub const PRIMARY: Color = Color::Rgb(0xc2, 0xdc, 0x99);
-pub const SECONDARY: Color = Color::Rgb(0xff, 0xb5, 0x95);
-pub const ON_SURFACE: Color = Color::Rgb(0xdb, 0xe3, 0xeb);
-pub const ON_SURFACE_VARIANT: Color = Color::Rgb(0x9f, 0xa8, 0xb0);
-pub const TERTIARY: Color = Color::Rgb(0xd2, 0xb4, 0x78);
-pub const OUTLINE_VARIANT: Color = Color::Rgb(0x45, 0x48, 0x3d);
-
 pub fn normalize_key(part: &str) -> String {
     let lower = part.trim().to_lowercase();
     match lower.as_str() {
@@ -86,4 +76,43 @@ pub fn icon_for(name: &str) -> &'static str {
         }
     }
     ""
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn modifiers_are_normalized() {
+        assert_eq!(parse_chips("Super + Shift + Q"), ["MOD", "SHFT", "Q"]);
+        assert_eq!(parse_chips("Control+Alt+Delete"), ["CTRL", "ALT", "DEL"]);
+        assert_eq!(parse_chips("Return"), ["RET"]);
+    }
+
+    #[test]
+    fn arrows_and_function_keys() {
+        assert_eq!(parse_chips("Alt + Left"), ["ALT", "←"]);
+        assert_eq!(parse_chips("f5"), ["F5"]);
+        assert_eq!(parse_chips("F12"), ["F12"]);
+    }
+
+    #[test]
+    fn short_keys_are_uppercased_long_keys_kept() {
+        assert_eq!(normalize_key("x"), "X");
+        assert_eq!(normalize_key("Mouse Scroll"), "SCR");
+        assert_eq!(normalize_key("Backtick"), "Backtick");
+    }
+
+    #[test]
+    fn empty_input_falls_back_to_raw_text() {
+        assert_eq!(parse_chips(" + "), [" + "]);
+        assert_eq!(parse_chips(""), [""]);
+    }
+
+    #[test]
+    fn icon_lookup_is_case_insensitive_substring() {
+        assert_eq!(icon_for("Hyprland"), "◈");
+        assert_eq!(icon_for("VS Code"), "⌥");
+        assert_eq!(icon_for("unknown"), "");
+    }
 }

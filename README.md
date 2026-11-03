@@ -1,6 +1,11 @@
 # ShortCheat
 
-Persönliches Keyboard-Shortcut Cheat-Sheet als PNG – generiert aus YAML-Dateien.
+Persönliches Keyboard-Shortcut Cheat-Sheet, generiert aus YAML-Dateien.
+Ein Programm (`shortcheat`, Rust) bietet zwei Ausgaben:
+
+- `shortcheat` startet einen interaktiven Viewer im Terminal (TUI).
+- `shortcheat png` schreibt das Cheat-Sheet als PNG.
+
 Design: **The Analog Naturalist / Everforest** (siehe `DESIGN.md`).
 
 ![cheat_sheet](cheat_sheet.png)
@@ -9,8 +14,13 @@ Design: **The Analog Naturalist / Everforest** (siehe `DESIGN.md`).
 
 ```
 examples/           Beispiel-YAML-Dateien (KDE, Hyprland, Firefox, VS Code)
-scripts/
-  generate_png.py   PNG-Generator (Pillow-basiert, Everforest-Design)
+src/
+  main.rs           Kommandozeile (clap): TUI oder Unterbefehl `png`
+  config.rs         YAML-Dateien aus ~/.config/shortcheat/ laden
+  model.rs, filter.rs, keys.rs, palette.rs   gemeinsame Daten, Suche, Tasten-Chips, Farben
+  tui.rs, ui.rs, theme.rs                    TUI (ratatui)
+  png/              PNG-Renderer (tiny-skia, ab_glyph)
+Cargo.toml          Rust-Projekt (Binary `shortcheat`)
 cheat_sheet.png     Generiertes Cheat-Sheet
 DESIGN.md           Design-System-Dokumentation
 ```
@@ -34,17 +44,16 @@ Modifier-Tasten werden automatisch normalisiert:
 
 ## Abhängigkeiten
 
-- Python 3.11+
-- **Pillow** ≥ 10.0 (benötigt `rounded_rectangle`, verfügbar ab Pillow 8.2)
-- **PyYAML** ≥ 6.0
-- Schriftarten: DejaVu Sans / DejaVu Sans Bold / DejaVu Sans Mono (System-Fonts)
+- Rust (stable) mit Cargo
+- Schriftarten für das PNG: DejaVu Sans / DejaVu Sans Bold / DejaVu Sans Mono
+  (System-Fonts, Debian/Ubuntu: `sudo apt install fonts-dejavu-core`)
+
+Rust-Bibliotheken (werden von Cargo geladen): `ratatui`, `crossterm`, `serde`,
+`serde_yaml`, `dirs`, `anyhow`, `clap`, `tiny-skia`, `ab_glyph`.
 
 ```bash
-# Installation via uv (empfohlen)
-uv sync
-
-# oder klassisch
-pip install ".[dev]"
+# Installation nach ~/.cargo/bin
+cargo install --path .
 ```
 
 ## Verwendung
@@ -54,12 +63,31 @@ pip install ".[dev]"
 mkdir -p ~/.config/shortcheat
 cp examples/*.yaml ~/.config/shortcheat/
 
-# PNG generieren
-uv run python scripts/generate_png.py
-# oder: shortcheat  (nach Installation als Paket)
+# Terminal-Viewer starten
+shortcheat
+
+# PNG generieren (Standard: cheat_sheet.png im aktuellen Verzeichnis)
+shortcheat png
+shortcheat png -o /pfad/zu/cheat_sheet.png
 ```
 
-Das Ergebnis wird als `cheat_sheet.png` im aktuellen Verzeichnis gespeichert (1920 px breit, Höhe dynamisch).
+Ohne Installation: `cargo run --release` (TUI) oder `cargo run --release -- png`.
+
+Das PNG ist 1920 px breit, die Höhe ergibt sich aus dem Inhalt.
+
+### Tasten im Terminal-Viewer
+
+| Taste | Aktion |
+|---|---|
+| beliebiges Zeichen | an die Suche anhängen |
+| Backspace | letztes Suchzeichen löschen |
+| ↑ / ↓ | eine Zeile scrollen |
+| PgUp / PgDn | zehn Zeilen scrollen |
+| Home | an den Anfang springen |
+| Esc | Suche leeren, oder beenden wenn sie leer ist |
+| Ctrl-C / Ctrl-D | beenden |
+
+Die Spalten werden beim Filtern neu verteilt.
 
 ## Cheat-Sheet anzeigen
 
@@ -114,11 +142,11 @@ pqiv -c -i -t --hide-cursor-at-bins /path/to/cheat_sheet.png
 
 ## Design
 
-Das Skript implementiert das **Everforest / "The Analog Naturalist"**-Design aus `DESIGN.md`:
+Das Programm implementiert das **Everforest / "The Analog Naturalist"**-Design aus `DESIGN.md`:
 
 - Farbpalette: `surface` `#0c141a` → `primary` `#c2dc99` → `secondary` `#ffb595`
 - 4-Spalten-Grid mit automatischer Höhenbalancierung
 - Key-Chips als gerundete Rechteck-Badges (Modifier normalisiert)
-- Kategorie-Icons per Emoji-Mapping
-- Glassmorphism-Card-Effekt via `ImageFilter.GaussianBlur`
+- Kategorie-Icons per Zeichen-Mapping
+- Weicher Schatten hinter der Card (Gaussscher Weichzeichner)
 - Ghost-Borders (15 % Opacity) statt harter Trennlinien

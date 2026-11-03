@@ -6,8 +6,8 @@ use anyhow::{anyhow, Context, Result};
 use crate::model::App;
 
 pub fn config_dir() -> Result<PathBuf> {
-    let base = dirs::config_dir()
-        .ok_or_else(|| anyhow!("could not resolve user config directory"))?;
+    let base =
+        dirs::config_dir().ok_or_else(|| anyhow!("could not resolve user config directory"))?;
     Ok(base.join("shortcheat"))
 }
 
@@ -30,13 +30,12 @@ pub fn load() -> Result<Vec<App>> {
 
     let mut apps = Vec::new();
     for p in paths {
-        let text = fs::read_to_string(&p)
-            .with_context(|| format!("reading {}", p.display()))?;
+        let text = fs::read_to_string(&p).with_context(|| format!("reading {}", p.display()))?;
         if text.trim().is_empty() {
             continue;
         }
-        let app: App = serde_yaml::from_str(&text)
-            .with_context(|| format!("parsing {}", p.display()))?;
+        let app: App =
+            serde_yaml::from_str(&text).with_context(|| format!("parsing {}", p.display()))?;
         apps.push(app);
     }
 
