@@ -29,7 +29,6 @@ const CARD_MARGIN: i32 = 16;
 const CARD_PADDING: i32 = 28;
 const CARD_RADIUS: i32 = 16;
 const HEADER_HEIGHT: i32 = 72;
-const FOOTER_HEIGHT: i32 = 44;
 const SECTION_GAP: i32 = 20;
 const APP_TITLE_HEIGHT: i32 = 30;
 const SECTION_HEADER_HEIGHT: i32 = 24;
@@ -55,7 +54,6 @@ struct Fonts {
     body: Face,
     chip: Face,
     tab: Face,
-    footer: Face,
     sidebar: Face,
 }
 
@@ -68,7 +66,6 @@ impl Fonts {
             body: Face::load(text::SANS, 13.0)?,
             chip: Face::load(text::MONO, 11.0)?,
             tab: Face::load(text::SANS, 13.0)?,
-            footer: Face::load(text::SANS, 10.0)?,
             sidebar: Face::load(text::SANS, 16.0)?,
         })
     }
@@ -224,7 +221,7 @@ fn content_height(columns: &[Vec<&App>]) -> i32 {
 }
 
 fn image_height(content_height: i32) -> i32 {
-    EDGE_PADDING + HEADER_HEIGHT + CARD_PADDING + content_height + FOOTER_HEIGHT + EDGE_PADDING
+    EDGE_PADDING + HEADER_HEIGHT + CARD_PADDING + content_height + EDGE_PADDING
 }
 
 // Key chips.
@@ -288,30 +285,10 @@ fn render_header(pm: &mut Pixmap, card_x: i32, card_y: i32, card_width: i32, fon
         .display
         .draw(pm, hx, hy, "EVERFOREST COMMAND", palette::PRIMARY);
 
-    let tabs = ["Shortcuts", "Workflows", "Extensions"];
     let tab_y = hy + 28 + 6;
-    let mut tab_x = hx;
-    for (i, tab) in tabs.iter().enumerate() {
-        let active = i == 0;
-        let color = if active {
-            palette::PRIMARY
-        } else {
-            palette::ON_SURFACE_VARIANT
-        };
-        fonts.tab.draw(pm, tab_x, tab_y, tab, color);
-        let tw = fonts.tab.width(tab);
-        if active {
-            fill_rect(
-                pm,
-                tab_x,
-                tab_y + 17,
-                tab_x + tw,
-                tab_y + 19,
-                palette::PRIMARY,
-            );
-        }
-        tab_x += tw + 24;
-    }
+    fonts.tab.draw(pm, hx, tab_y, "Shortcuts", palette::PRIMARY);
+    let tw = fonts.tab.width("Shortcuts");
+    fill_rect(pm, hx, tab_y + 17, hx + tw, tab_y + 19, palette::PRIMARY);
 
     let corner_icons = ["⚙", "?", "○"];
     let mut rx = card_x + card_width - CARD_PADDING;
@@ -378,39 +355,6 @@ fn render_app_block(
     }
 
     y + APP_BOTTOM_PAD
-}
-
-fn render_footer(pm: &mut Pixmap, card_x: i32, card_bottom: i32, card_width: i32, fonts: &Fonts) {
-    let fy = card_bottom - FOOTER_HEIGHT + (FOOTER_HEIGHT - 10) / 2;
-
-    fonts.footer.draw(
-        pm,
-        card_x + CARD_PADDING,
-        fy,
-        "© 2024 THE ANALOG NATURALIST",
-        palette::ON_SURFACE_VARIANT,
-    );
-
-    let links = ["DOCUMENTATION", "CHANGELOG", "PRIVACY"];
-    let mut rx = card_x + card_width - CARD_PADDING;
-    for link in links.iter().rev() {
-        let lw = fonts.footer.width(link);
-        rx -= lw;
-        fonts
-            .footer
-            .draw(pm, rx, fy, link, palette::ON_SURFACE_VARIANT);
-        rx -= 24;
-    }
-
-    let sep_y = card_bottom - FOOTER_HEIGHT;
-    let ghost = ghost_color(palette::OUTLINE_VARIANT, palette::SURFACE_CONTAINER_LOW);
-    hline(
-        pm,
-        card_x + CARD_PADDING,
-        card_x + card_width - CARD_PADDING,
-        sep_y,
-        ghost,
-    );
 }
 
 /// Draw the blurred ambient shadow behind the card onto the opaque `pm`.
@@ -506,9 +450,6 @@ pub fn generate(apps: &[App], output: &Path) -> Result<()> {
         }
     }
 
-    // Footer.
-    render_footer(&mut pm, card_x, card_y + card_height, card_width, &fonts);
-
     pm.save_png(output)
         .map_err(|e| anyhow!("writing {}: {e}", output.display()))?;
     Ok(())
@@ -575,8 +516,8 @@ mod tests {
         // Tallest column holds "b": 30 + 24 + 4 * 22 + 16 + 20 = 178.
         let content = content_height(&grid);
         assert_eq!(content, 178);
-        // 20 + 72 + 28 + 178 + 44 + 20
-        assert_eq!(image_height(content), 362);
+        // 20 + 72 + 28 + 178 + 20
+        assert_eq!(image_height(content), 318);
     }
 
     #[test]
