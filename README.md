@@ -1,110 +1,110 @@
 # ShortCheat
 
-Persönliches Keyboard-Shortcut Cheat-Sheet, generiert aus YAML-Dateien.
-Ein Programm (`shortcheat`, Rust) bietet zwei Ausgaben:
+A personal keyboard-shortcut cheat sheet, generated from YAML files.
+One program (`shortcheat`, written in Rust) has two outputs:
 
-- `shortcheat` startet einen interaktiven Viewer im Terminal (TUI).
-- `shortcheat png` schreibt das Cheat-Sheet als PNG.
+- `shortcheat` starts an interactive viewer in the terminal (TUI).
+- `shortcheat png` writes the cheat sheet as a PNG file.
 
-Design: **The Analog Naturalist / Everforest** (siehe `DESIGN.md`).
+Design: **The Analog Naturalist / Everforest** (see `DESIGN.md`).
 
 ![cheat_sheet](cheat_sheet.png)
 
-## Struktur
+## Structure
 
 ```
-examples/           Beispiel-YAML-Dateien (KDE, Hyprland, Firefox, VS Code)
+examples/           Example YAML files (KDE, Hyprland, Firefox, VS Code)
 src/
-  main.rs           Kommandozeile (clap): TUI oder Unterbefehl `png`
-  config.rs         YAML-Dateien aus ~/.config/shortcheat/ laden
-  model.rs, filter.rs, keys.rs, palette.rs   gemeinsame Daten, Suche, Tasten-Chips, Farben
+  main.rs           Command line (clap): TUI or subcommand `png`
+  config.rs         Loads YAML files from ~/.config/shortcheat/
+  model.rs, filter.rs, keys.rs, palette.rs   shared data, search, key chips, colors
   tui.rs, ui.rs, theme.rs                    TUI (ratatui)
-  png/              PNG-Renderer (tiny-skia, ab_glyph)
-Cargo.toml          Rust-Projekt (Binary `shortcheat`)
-cheat_sheet.png     Generiertes Cheat-Sheet
-DESIGN.md           Design-System-Dokumentation
+  png/              PNG renderer (tiny-skia, ab_glyph)
+Cargo.toml          Rust project (binary `shortcheat`)
+cheat_sheet.png     Generated cheat sheet
+DESIGN.md           Design system documentation
 ```
 
-Eigene YAML-Dateien liegen unter `~/.config/shortcheat/`.
+Put your own YAML files in `~/.config/shortcheat/`.
 
-## YAML-Format
+## YAML format
 
 ```yaml
-app: "Anwendungsname"
-description: "Kurzbeschreibung"
+app: "Application name"
+description: "Short description"
 sections:
-  - name: "Sektionsname"
+  - name: "Section name"
     shortcuts:
       - keys: "Ctrl + S"
-        description: "Speichern"
+        description: "Save"
 ```
 
-Modifier-Tasten werden automatisch normalisiert:
-`Super`/`Meta` → `MOD`, `Ctrl`/`Control` → `CTRL`, `Shift` → `SHFT`, `Alt` → `ALT`, `Return` → `RET`, usw.
+Modifier keys are normalized automatically:
+`Super`/`Meta` → `MOD`, `Ctrl`/`Control` → `CTRL`, `Shift` → `SHFT`, `Alt` → `ALT`, `Return` → `RET`, and so on.
 
-## Abhängigkeiten
+## Dependencies
 
-- Rust (stable) mit Cargo
-- Schriftarten für das PNG: DejaVu Sans / DejaVu Sans Bold / DejaVu Sans Mono
-  (System-Fonts, Debian/Ubuntu: `sudo apt install fonts-dejavu-core`)
+- Rust (stable) with Cargo
+- Fonts for the PNG: DejaVu Sans / DejaVu Sans Bold / DejaVu Sans Mono
+  (system fonts; on Debian/Ubuntu: `sudo apt install fonts-dejavu-core`)
 
-Rust-Bibliotheken (werden von Cargo geladen): `ratatui`, `crossterm`, `serde`,
+Rust libraries (downloaded by Cargo): `ratatui`, `crossterm`, `serde`,
 `serde_yaml`, `dirs`, `anyhow`, `clap`, `tiny-skia`, `ab_glyph`.
 
 ```bash
-# Installation nach ~/.cargo/bin
+# Install to ~/.cargo/bin
 cargo install --path .
 ```
 
-## Verwendung
+## Usage
 
 ```bash
-# YAML-Dateien in Config-Verzeichnis ablegen
+# Copy the YAML files to the config directory
 mkdir -p ~/.config/shortcheat
 cp examples/*.yaml ~/.config/shortcheat/
 
-# Terminal-Viewer starten
+# Start the terminal viewer
 shortcheat
 
-# PNG generieren (Standard: cheat_sheet.png im aktuellen Verzeichnis)
+# Generate a PNG (default: cheat_sheet.png in the current directory)
 shortcheat png
-shortcheat png -o /pfad/zu/cheat_sheet.png
+shortcheat png -o /path/to/cheat_sheet.png
 ```
 
-Ohne Installation: `cargo run --release` (TUI) oder `cargo run --release -- png`.
+Without installing: `cargo run --release` (TUI) or `cargo run --release -- png`.
 
-Das PNG ist 1920 px breit, die Höhe ergibt sich aus dem Inhalt.
+The PNG is 1920 px wide. Its height depends on the content.
 
-### Tasten im Terminal-Viewer
+### Keys in the terminal viewer
 
-| Taste | Aktion |
+| Key | Action |
 |---|---|
-| beliebiges Zeichen | an die Suche anhängen |
-| Backspace | letztes Suchzeichen löschen |
-| ↑ / ↓ | eine Zeile scrollen |
-| PgUp / PgDn | zehn Zeilen scrollen |
-| Home | an den Anfang springen |
-| Esc | Suche leeren, oder beenden wenn sie leer ist |
-| Ctrl-C / Ctrl-D | beenden |
+| any character | append to the search |
+| Backspace | delete the last search character |
+| ↑ / ↓ | scroll one line |
+| PgUp / PgDn | scroll ten lines |
+| Home | jump to the start |
+| Esc | clear the search, or quit if it is empty |
+| Ctrl-C / Ctrl-D | quit |
 
-Die Spalten werden beim Filtern neu verteilt.
+The columns are redistributed when you filter.
 
-## Cheat-Sheet anzeigen
+## Show the cheat sheet
 
-### Hyprland – Hold-to-show via Special Workspace
+### Hyprland – hold to show via special workspace
 
-Das Bild wird **einmalig beim Start geladen** und in einem unsichtbaren
-Scratchpad-Workspace versteckt. `SUPER + F1` blendet es sofort ein,
-Loslassen blendet es sofort wieder aus – keine Prozessstarts, keine
-Race-Conditions.
+The image is **loaded once at startup** and hidden in an invisible
+Scratchpad workspace. `SUPER + F1` shows it immediately.
+Releasing the key hides it again. No processes are started on each press,
+and there are no race conditions.
 
-Füge folgendes in `~/.config/hypr/hyprland.conf` ein:
+Add the following to `~/.config/hypr/hyprland.conf`:
 
 ```hyprlang
-# Bild einmalig beim Start laden (läuft unsichtbar im Hintergrund)
-exec-once = imv -b 000000 /home/patrick/repos/shortcheat/cheat_sheet.png
+# Load the image once at startup (runs invisibly in the background)
+exec-once = imv -b 000000 /path/to/shortcheat/cheat_sheet.png
 
-# Fensterregeln: Bild in Scratchpad-Workspace verstecken
+# Window rules: hide the image in the Scratchpad workspace
 windowrule {
   match:title  = cheat_sheet.png
   workspace    = special:cheat silent
@@ -116,25 +116,25 @@ windowrule {
   opacity      = 0.85 0.85
 }
 
-# Hold-to-show: Einblenden beim Drücken, Ausblenden beim Loslassen
+# Hold to show: show on key press, hide on key release
 bind  = SUPER, F1, togglespecialworkspace, cheat
 bindr = SUPER, F1, togglespecialworkspace, cheat
 ```
 
-**Ersteinrichtung** (einmalig nach dem Speichern, da `exec-once` erst
-beim nächsten Hyprland-Start greift):
+**First-time setup** (run once after saving the config, because `exec-once`
+only runs at the next Hyprland start):
 
 ```bash
-imv -b 000000 /home/patrick/repos/shortcheat/cheat_sheet.png &
+imv -b 000000 /path/to/shortcheat/cheat_sheet.png &
 ```
 
-> **Hinweis nach Hyprland-Reload:** Da `exec-once` nur beim Booten
-> ausgeführt wird, imv nach einem `hyprland reload` ggf. manuell neu
-> starten, damit sich der Workspace-Zustand zurücksetzt.
+> **Note after a Hyprland reload:** `exec-once` only runs at boot.
+> After a `hyprland reload`, you may have to restart imv manually
+> so that the workspace state is reset.
 
-### KDE – Globalen Shortcut anlegen
+### KDE – create a global shortcut
 
-Systemeinstellungen → Shortcuts → Globale Shortcuts, Befehl:
+System Settings → Shortcuts → Global Shortcuts, command:
 
 ```bash
 pqiv -c -i -t --hide-cursor-at-bins /path/to/cheat_sheet.png
@@ -142,11 +142,15 @@ pqiv -c -i -t --hide-cursor-at-bins /path/to/cheat_sheet.png
 
 ## Design
 
-Das Programm implementiert das **Everforest / "The Analog Naturalist"**-Design aus `DESIGN.md`:
+The program implements the **Everforest / "The Analog Naturalist"** design from `DESIGN.md`:
 
-- Farbpalette: `surface` `#0c141a` → `primary` `#c2dc99` → `secondary` `#ffb595`
-- 4-Spalten-Grid mit automatischer Höhenbalancierung
-- Key-Chips als gerundete Rechteck-Badges (Modifier normalisiert)
-- Kategorie-Icons per Zeichen-Mapping
-- Weicher Schatten hinter der Card (Gaussscher Weichzeichner)
-- Ghost-Borders (15 % Opacity) statt harter Trennlinien
+- Color palette: `surface` `#0c141a` → `primary` `#c2dc99` → `secondary` `#ffb595`
+- 4-column grid with automatic height balancing
+- Key chips as rounded-rectangle badges (modifiers normalized)
+- Category icons by character mapping
+- Soft shadow behind the card (Gaussian blur)
+- Ghost borders (15 % opacity) instead of hard divider lines
+
+## License
+
+MIT, see [`LICENSE`](LICENSE).

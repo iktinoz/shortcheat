@@ -3,6 +3,8 @@ name = "shortcheat"
 version = "0.1.0"
 edition = "2021"
 description = "Keyboard shortcut cheat sheet from YAML: terminal viewer and PNG export (Everforest)"
+license = "MIT"
+repository = "https://github.com/iktinoz/shortcheat"
 
 [dependencies]
 ratatui = "0.29"
